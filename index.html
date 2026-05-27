@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoreo RF · Antenas Piso 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CONFIGURACIÓN DE DATOS — ver instrucciones más abajo en <script>
+   ============================================================ */
+:root{
+  --bg:#0b0e13; --bg-2:#12161f; --bg-3:#1a212e; --bg-4:#222b3a;
+  --line:#2b3545; --line-soft:#212a38;
+  --text:#e8edf4; --text-dim:#8a97aa; --text-faint:#5a6678;
+  --accent:#10e0c4; --accent-2:#4d9fff;
+  --optimo:#2ec28a; --degradado:#f0b429; --critico:#f2585b; --none:#3a4456;
+  --shadow:0 10px 40px -12px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Archivo',sans-serif;
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(900px 500px at 78% -5%, rgba(77,159,255,.10), transparent 70%),
+    radial-gradient(700px 600px at 8% 105%, rgba(16,224,196,.07), transparent 70%);
+}
+.app{max-width:1480px;margin:0 auto;padding:22px 26px 60px}
+
+/* ---------- HEADER ---------- */
+header{
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  padding-bottom:18px;margin-bottom:22px;
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .mark{
+  width:42px;height:42px;border-radius:9px;flex:none;
+  background:linear-gradient(145deg,#13222e,#0d161f);
+  border:1px solid var(--line);
+  display:grid;place-items:center;position:relative;overflow:hidden;
+}
+.brand .mark::before{
+  content:"";position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 5px,rgba(16,224,196,.13) 5px 6px),
+    repeating-linear-gradient(0deg,transparent 0 5px,rgba(16,224,196,.13) 5px 6px);
+}
+.brand .mark svg{position:relative;z-index:1}
+.brand h1{
+  font-family:'Chakra Petch',sans-serif;font-weight:700;
+  font-size:18px;letter-spacing:.5px;line-height:1.1;
+}
+.brand .sub{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  color:var(--text-faint);letter-spacing:1.5px;text-transform:uppercase;
+}
+.head-right{margin-left:auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.status{
+  display:flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:1px;
+  padding:7px 12px;border-radius:7px;border:1px solid var(--line);
+  background:var(--bg-2);text-transform:uppercase;
+}
+.dot{width:8px;height:8px;border-radius:50%;flex:none}
+.status.live .dot{background:var(--optimo);box-shadow:0 0 0 0 rgba(46,194,138,.6);animation:pulse 2s infinite}
+.status.local .dot{background:var(--degradado)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,194,138,.55)}70%{box-shadow:0 0 0 8px rgba(46,194,138,0)}100%{box-shadow:0 0 0 0 rgba(46,194,138,0)}}
+.upd{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-faint);letter-spacing:.5px}
+.btn{
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.8px;
+  background:var(--bg-3);color:var(--text);border:1px solid var(--line);
+  padding:8px 14px;border-radius:7px;cursor:pointer;text-transform:uppercase;
+  display:flex;align-items:center;gap:7px;transition:.15s;
+}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn svg{transition:transform .5s}
+.btn.spin svg{transform:rotate(360deg)}
+
+/* ---------- GRID ---------- */
+.grid{display:grid;grid-template-columns:1.55fr 1fr;gap:20px;align-items:start}
+.card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:12px;
+  box-shadow:var(--shadow);
+}
+.card-head{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 16px;border-bottom:1px solid var(--line-soft);
+}
+.card-head h2{
+  font-family:'Chakra Petch',sans-serif;font-weight:600;
+  font-size:12.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim);
+}
+.card-head .tag{
+  margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--text-faint);letter-spacing:1px;
+}
+
+/* ---------- PLANO ---------- */
+.plano-wrap{padding:6px 8px 12px;position:relative}
+.metric-bar{
+  display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px 4px;
+}
+.metric-bar .lbl{
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:1px;
+  color:var(--text-faint);align-self:center;margin-right:4px;text-transform:uppercase;
+}
+.chip{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.5px;
+  background:transparent;border:1px solid var(--line);color:var(--text-dim);
+  padding:5px 9px;border-radius:6px;cursor:pointer;transition:.13s;
+}
+.chip:hover{border-color:var(--accent-2);color:var(--text)}
+.chip.on{background:var(--accent-2);border-color:var(--accent-2);color:#06121f;font-weight:700}
+svg.plano{width:100%;height:auto;display:block;cursor:default}
+.zona{cursor:pointer;transition:fill .25s,fill-opacity .2s,opacity .2s;stroke-width:.45;}
+.zona:hover{filter:url(#glow)}
+.muro{fill:none;stroke:#56657d;stroke-width:.5;pointer-events:none;stroke-linejoin:round}
+.zlabel{
+  font-family:'Chakra Petch',sans-serif;font-weight:700;
+  fill:#fff;pointer-events:none;text-anchor:middle;
+  paint-order:stroke;stroke:rgba(0,0,0,.55);stroke-width:.8px;
+}
+.zlabel .n{font-size:5.4px}
+.zlabel .c{font-size:2.7px;font-family:'JetBrains Mono',monospace;font-weight:500;fill:rgba(255,255,255,.82)}
+.zona.dim{opacity:.24}
+.zona.sel{stroke:#fff;stroke-width:.85}
+
+/* legend */
+.legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:6px 12px 4px}
+.legend .item{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--text-dim);letter-spacing:.5px}
+.legend .sw{width:11px;height:11px;border-radius:3px;flex:none}
+.legend .bar{width:120px;height:11px;border-radius:3px;flex:none}
+
+/* tooltip */
+#tip{
+  position:fixed;z-index:50;pointer-events:none;opacity:0;transition:opacity .12s;
+  background:var(--bg-4);border:1px solid var(--line);border-radius:9px;
+  padding:10px 12px;min-width:170px;box-shadow:var(--shadow);
+}
+#tip .t-z{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px}
+#tip .t-n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);margin-bottom:7px}
+#tip .t-row{display:flex;justify-content:space-between;gap:14px;font-size:11px;padding:1.5px 0}
+#tip .t-row .v{font-family:'JetBrains Mono',monospace;font-weight:500}
+#tip .t-bd{display:flex;gap:3px;margin-top:7px}
+#tip .t-bd span{height:5px;border-radius:2px}
+
+/* ---------- PANEL INFO / KPI ---------- */
+.info-body{padding:16px}
+.info-title{
+  display:flex;align-items:baseline;gap:10px;margin-bottom:3px;
+}
+.info-title .z{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:24px;letter-spacing:.5px}
+.info-title .scope{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);letter-spacing:1px}
+.badge{
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.8px;
+  padding:3px 8px;border-radius:5px;text-transform:uppercase;
+}
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}
+.kpi{
+  background:var(--bg-3);border:1px solid var(--line-soft);border-radius:9px;padding:11px 12px;
+}
+.kpi .k-l{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--text-faint);text-transform:uppercase}
+.kpi .k-v{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:23px;line-height:1.25}
+.kpi .k-v small{font-size:11px;color:var(--text-dim);font-weight:500}
+.bd-title{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:1px;color:var(--text-faint);text-transform:uppercase;margin:4px 0 8px}
+.stackbar{display:flex;height:12px;border-radius:4px;overflow:hidden;background:var(--bg-3);margin-bottom:10px}
+.stackbar span{transition:width .4s}
+.bd-rows{display:flex;flex-direction:column;gap:5px}
+.bd-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.bd-row .sw{width:9px;height:9px;border-radius:2px;flex:none}
+.bd-row .nm{color:var(--text-dim)}
+.bd-row .ct{margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:500}
+.hint{
+  margin-top:14px;font-size:11px;color:var(--text-faint);
+  font-family:'JetBrains Mono',monospace;letter-spacing:.3px;
+  border-top:1px dashed var(--line-soft);padding-top:11px;
+}
+
+/* ---------- TABLA ---------- */
+.tabla-card{margin-top:20px}
+.tbl-tools{display:flex;align-items:center;gap:10px;margin-left:auto}
+#search{
+  background:var(--bg-3);border:1px solid var(--line);color:var(--text);
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  padding:7px 10px;border-radius:6px;width:200px;outline:none;
+}
+#search:focus{border-color:var(--accent)}
+#search::placeholder{color:var(--text-faint)}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.8px;
+  color:var(--text-faint);text-transform:uppercase;text-align:left;font-weight:500;
+  padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;
+  background:var(--bg-2);position:sticky;top:0;
+}
+thead th.num{text-align:right}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+tbody td.num{text-align:right;font-family:'JetBrains Mono',monospace}
+tbody td.mono{font-family:'JetBrains Mono',monospace}
+tbody tr{cursor:pointer;transition:background .12s}
+tbody tr:hover{background:var(--bg-3)}
+tbody tr td:first-child{border-left:3px solid transparent}
+.pill{
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;
+  padding:2.5px 7px;border-radius:4px;letter-spacing:.4px;display:inline-block;
+}
+.empty{padding:34px;text-align:center;color:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:12px}
+footer{
+  margin-top:26px;text-align:center;
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);letter-spacing:.5px;
+}
+.fade{opacity:0;transform:translateY(10px);animation:rise .55s cubic-bezier(.2,.7,.2,1) forwards}
+.fade.d1{animation-delay:.06s}.fade.d2{animation-delay:.13s}.fade.d3{animation-delay:.2s}
+@keyframes rise{to{opacity:1;transform:none}}
+@media(max-width:980px){.grid{grid-template-columns:1fr}#search{width:140px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="brand fade">
+      <div class="mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10e0c4" stroke-width="2">
+          <path d="M12 3v6M12 15v6M5 8a7 7 0 0 0 0 8M19 8a7 7 0 0 1 0 8M8 10a3.5 3.5 0 0 0 0 4M16 10a3.5 3.5 0 0 1 0 4"/>
+          <circle cx="12" cy="12" r="2" fill="#10e0c4" stroke="none"/>
+        </svg>
+      </div>
+      <div>
+        <h1>MONITOREO RF · ANTENAS</h1>
+        <div class="sub">Aeropuerto · Piso 1 · 9 Zonas</div>
+      </div>
+    </div>
+    <div class="head-right fade d1">
+      <div class="status" id="statusPill"><span class="dot"></span><span id="statusTxt">—</span></div>
+      <div class="upd" id="updTxt">—</div>
+      <button class="btn" id="refreshBtn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/>
+        </svg>
+        Actualizar
+      </button>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- PLANO -->
+    <div class="card fade d1">
+      <div class="card-head">
+        <h2>Plano interactivo</h2>
+        <span class="tag" id="planoTag">Pasa el cursor · Clic para filtrar</span>
+      </div>
+      <div class="metric-bar">
+        <span class="lbl">Mapa de calor</span>
+        <button class="chip on" data-metric="estado">Estado</button>
+        <button class="chip" data-metric="rsrp">RSRP prom.</button>
+        <button class="chip" data-metric="sinr">SINR prom.</button>
+        <button class="chip" data-metric="conteo">N° antenas</button>
+      </div>
+      <div class="plano-wrap">
+        <svg class="plano" id="plano" viewBox="0 0 297 210" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.4" flood-color="#10e0c4" flood-opacity="0.9"/>
+            </filter>
+          </defs>
+          <g id="contenido">
+            <g id="zonas"></g>
+            <path class="muro" d="m 56.527974,83.539136 v 42.580204 h 27.471539 v 26.41494 h -5.859314 v -1.10463 H 67.574223 l -0.325046,1.21309 H 33.907179 v 4.0699 h 3.265848 v 6.57972 h 1.152652 v -6.57972 h 8.885025 v 6.62775 h 0.912516 v -6.81986 h 8.020537 v 6.77183 h 1.200679 v -6.7238 h 8.404754 v 6.62775 l 0.97703,0.26179 v -6.84151 h 8.724458 v 6.7238 l 0.79779,-0.21376 v -6.55807 h 8.471453 v 6.67578 h 0.960543 v -6.43564 h 4.802717 v 1.00857 h 3.698092 v 6.53169 h 0.720407 v -6.7238 h 0.720408 v -1.0566 h 3.457956 v 1.10463 h 4.466526 v 6.67577 h 0.81646 v -6.77183 h 0.67238 v -0.57632 h 9.12516 v -1.24871 h -6.38761 v -5.23496 h 6.7238 v -1.10463 h -6.57972 v -6.48366 h -1.15265 v -4.46653 h 1.29673 v -0.5283 h 6.43564 l -0.22577,-0.8426 h -6.40198 v -6.07331 h -0.96054 v -2.68952 h 1.0566 v -10.90217 c 3.24601,-8.3417 16.1769,-8.0887 18.53849,-8.21264 v 1.15265 h 6.77183 v 5.95537 h 1.96911 v -6.29156 h 6.09945 v -0.91252 h 4.17836 v 1.33276 h 6.3516 v 5.72783 h 2.20413 v -6.01098 h 6.2487 v -0.71317 h 4.14316 v 0.91693 h 6.48643 v 5.9091 h 2.10554 v -5.97702 h 6.0789 v -1.01881 h 5.7393 v 1.18861 h 4.82236 v 6.0789 h 2.20742 v -6.19776 h 4.73747 v -0.88297 h 5.55252 v 1.13767 h 6.43548 v 5.9091 h 2.12252 v -5.92608 h 6.18078 v -1.13767 h 4.04128 v 1.20559 h 6.5034 v 5.75628 h 1.9697 v -5.80722 h 6.36757 v -1.03579 h 6.0789 v -7.94672 h -6.11286 v -1.01881 H 229.453 v -5.892116 h -2.00366 v 5.993996 h -6.38454 v 0.96787 h -4.00732 v -1.08673 h -6.40152 v -5.875136 h -2.03762 v 6.027956 h -6.4185 v 1.05278 h -5.6544 v -1.23956 h -4.66955 v -5.773255 h -2.1395 v 5.807215 h -4.94123 v 0.84901 h -5.60345 v -1.17163 h -6.35059 v -5.518554 h -2.05459 v 5.756274 h -6.36757 v 0.89995 h -4.07524 v -0.98485 h -6.1638 v -5.790236 h -2.29232 v 5.943056 h -6.35058 v 0.89995 h -26.65887 c -4.12053,-1.0267 -10.94554,-6.482286 -11.87362,-11.614652 V 82.0304 h 1.05659 V 71.968708 h 4.56258 v -2.137209 h -5.59516 v -5.066866 h 1.0566 v -8.957066 h 4.22639 v -2.113195 h -5.25898 v -1.302065 h -0.55294 V 46.1421 h -0.86386 v 6.171491 h -5.307 v 1.236699 h -3.986255 v -1.500849 h -0.276156 v -5.991389 h -0.744421 v 5.943362 h -8.224652 v -5.919348 h -1.284727 v 5.955368 H 85.24822 v 1.368775 h -7.444211 v -1.404795 h -0.516292 v -5.967375 h -1.248706 v 6.003395 h -4.034282 v 1.356768 h -3.265848 v -1.356768 h -0.648366 v -6.17149 H 66.68572 v 6.147477 H 58.809265 V 45.87795 H 57.40447 v 6.09945 h -1.356767 v 1.392788 h -2.305304 v 4.382479 h 47.690971 v 7.108021 h 1.41681 v 18.802635 z"/>
+            <g id="labels"></g>
+          </g>
+        </svg>
+        <div class="legend" id="legend"></div>
+      </div>
+    </div>
+
+    <!-- PANEL INFO -->
+    <div class="card fade d2">
+      <div class="card-head">
+        <h2>Resumen</h2>
+        <span class="tag" id="resetSel" style="cursor:pointer">&#8634; Ver todo el piso</span>
+      </div>
+      <div class="info-body" id="infoBody"></div>
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <div class="card tabla-card fade d3">
+    <div class="card-head">
+      <h2>Detalle de equipos</h2>
+      <div class="tbl-tools">
+        <input id="search" type="text" placeholder="buscar antena, banda...">
+        <span class="tag" id="rowCount">—</span>
+      </div>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr>
+          <th>Antena</th><th>Zona</th><th>Estado</th><th>Tecnología</th><th>Banda</th>
+          <th class="num">RSRP</th><th class="num">SINR</th><th>Último trabajo</th><th>Fecha interv.</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="emptyMsg" style="display:none">Sin resultados</div>
+  </div>
+
+  <footer>Dashboard generado para visualización RF · Piso 1 — sustituye SHEET_CSV_URL para datos en vivo</footer>
+</div>
+
+<div id="tip"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   ░░ CONFIGURACIÓN ░░
+   Para tener DATOS EN TIEMPO REAL (gratis):
+   1. Sube tu Excel a Google Sheets.
+   2. Archivo ▸ Compartir ▸ Publicar en la web ▸ pestaña "Piso_1_Antenas"
+      ▸ formato "Valores separados por comas (.csv)" ▸ Publicar.
+   3. Copia esa URL y pégala abajo entre las comillas de SHEET_CSV_URL.
+   Si lo dejas vacío, usa los 50 registros embebidos (funciona offline).
+   Las columnas de la hoja deben mantener: ZONA MAPA, ESTADO, RSRP, SINR, etc.
+   ════════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  SHEET_CSV_URL: "",          // ej: "https://docs.google.com/spreadsheets/d/e/..../pub?gid=0&single=true&output=csv"
+  AUTO_REFRESH_SECONDS: 0     // 0 = desactivado · ej: 60 = refresca cada minuto
+};
+
+/* ── Datos embebidos (respaldo / modo offline) ── */
+const EMBEDDED_DATA = [{"antena":"ANT-001","ubicacion":"PISO 1","zona":"REG_01","tecnologia":"4G/LTE","banda":"AWS 1700/2100","rsrp":-80,"sinr":11,"intervencion":"2026-04-28","tipo_trabajo":"Ajuste de Azimuth","estado":"Degradado"},{"antena":"ANT-002","ubicacion":"PISO 1","zona":"REG_02","tecnologia":"4G + 5G","banda":"3.5 GHz","rsrp":-76,"sinr":12,"intervencion":"2026-01-19","tipo_trabajo":"Auditoría de Enlace","estado":"Óptimo"},{"antena":"ANT-003","ubicacion":"PISO 1","zona":"REG_03","tecnologia":"5G Sub-6","banda":"1900 MHz","rsrp":-112,"sinr":14,"intervencion":"2026-05-04","tipo_trabajo":"Mantenimiento Preventivo","estado":"Crítico"},{"antena":"ANT-004","ubicacion":"PISO 1","zona":"REG_04","tecnologia":"5G Sub-6","banda":"700 MHz","rsrp":-84,"sinr":-5,"intervencion":"2026-01-19","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-005","ubicacion":"PISO 1","zona":"REG_05","tecnologia":"4G/LTE","banda":"3.5 GHz","rsrp":-96,"sinr":6,"intervencion":"2026-02-22","tipo_trabajo":"Upgrade de Software","estado":"Degradado"},{"antena":"ANT-006","ubicacion":"PISO 1","zona":"REG_06","tecnologia":"4G + 5G","banda":"700 MHz","rsrp":-66,"sinr":5,"intervencion":"2026-05-02","tipo_trabajo":"Auditoría de Enlace","estado":"Degradado"},{"antena":"ANT-007","ubicacion":"PISO 1","zona":"REG_07","tecnologia":"4G + 5G","banda":"AWS 1700/2100","rsrp":-94,"sinr":9,"intervencion":"2026-04-18","tipo_trabajo":"Auditoría de Enlace","estado":"Degradado"},{"antena":"ANT-008","ubicacion":"PISO 1","zona":"REG_08","tecnologia":"4G/LTE","banda":"1900 MHz","rsrp":-71,"sinr":13,"intervencion":"2026-03-11","tipo_trabajo":"Mantenimiento Preventivo","estado":"Óptimo"},{"antena":"ANT-009","ubicacion":"PISO 1","zona":"REG_09","tecnologia":"5G Sub-6","banda":"3.5 GHz","rsrp":-103,"sinr":2,"intervencion":"2026-02-08","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-010","ubicacion":"PISO 1","zona":"REG_01","tecnologia":"4G + 5G","banda":"700 MHz","rsrp":-88,"sinr":8,"intervencion":"2026-03-29","tipo_trabajo":"Ajuste de Azimuth","estado":"Degradado"},{"antena":"ANT-011","ubicacion":"PISO 1","zona":"REG_02","tecnologia":"5G Sub-6","banda":"1900 MHz","rsrp":-69,"sinr":15,"intervencion":"2026-05-12","tipo_trabajo":"Mantenimiento Preventivo","estado":"Óptimo"},{"antena":"ANT-012","ubicacion":"PISO 1","zona":"REG_03","tecnologia":"4G/LTE","banda":"AWS 1700/2100","rsrp":-99,"sinr":4,"intervencion":"2026-01-30","tipo_trabajo":"Upgrade de Software","estado":"Degradado"},{"antena":"ANT-013","ubicacion":"PISO 1","zona":"REG_04","tecnologia":"4G + 5G","banda":"3.5 GHz","rsrp":-108,"sinr":-2,"intervencion":"2026-04-06","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-014","ubicacion":"PISO 1","zona":"REG_05","tecnologia":"5G Sub-6","banda":"700 MHz","rsrp":-79,"sinr":10,"intervencion":"2026-03-17","tipo_trabajo":"Auditoría de Enlace","estado":"Óptimo"},{"antena":"ANT-015","ubicacion":"PISO 1","zona":"REG_06","tecnologia":"4G/LTE","banda":"1900 MHz","rsrp":-91,"sinr":7,"intervencion":"2026-02-14","tipo_trabajo":"Ajuste de Azimuth","estado":"Degradado"},{"antena":"ANT-016","ubicacion":"PISO 1","zona":"REG_07","tecnologia":"4G + 5G","banda":"3.5 GHz","rsrp":-105,"sinr":1,"intervencion":"2026-05-08","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-017","ubicacion":"PISO 1","zona":"REG_08","tecnologia":"5G Sub-6","banda":"AWS 1700/2100","rsrp":-73,"sinr":12,"intervencion":"2026-04-22","tipo_trabajo":"Mantenimiento Preventivo","estado":"Óptimo"},{"antena":"ANT-018","ubicacion":"PISO 1","zona":"REG_09","tecnologia":"4G/LTE","banda":"700 MHz","rsrp":-86,"sinr":9,"intervencion":"2026-01-25","tipo_trabajo":"Upgrade de Software","estado":"Degradado"},{"antena":"ANT-019","ubicacion":"PISO 1","zona":"REG_01","tecnologia":"5G Sub-6","banda":"1900 MHz","rsrp":-110,"sinr":0,"intervencion":"2026-03-04","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-020","ubicacion":"PISO 1","zona":"REG_02","tecnologia":"4G + 5G","banda":"3.5 GHz","rsrp":-78,"sinr":11,"intervencion":"2026-05-15","tipo_trabajo":"Auditoría de Enlace","estado":"Óptimo"},{"antena":"ANT-021","ubicacion":"PISO 1","zona":"REG_03","tecnologia":"4G/LTE","banda":"700 MHz","rsrp":-93,"sinr":6,"intervencion":"2026-02-27","tipo_trabajo":"Ajuste de Azimuth","estado":"Degradado"},{"antena":"ANT-022","ubicacion":"PISO 1","zona":"REG_04","tecnologia":"5G Sub-6","banda":"AWS 1700/2100","rsrp":-101,"sinr":3,"intervencion":"2026-04-11","tipo_trabajo":"Upgrade de Software","estado":"Degradado"},{"antena":"ANT-023","ubicacion":"PISO 1","zona":"REG_05","tecnologia":"4G + 5G","banda":"1900 MHz","rsrp":-68,"sinr":14,"intervencion":"2026-03-22","tipo_trabajo":"Mantenimiento Preventivo","estado":"Óptimo"},{"antena":"ANT-024","ubicacion":"PISO 1","zona":"REG_06","tecnologia":"4G/LTE","banda":"3.5 GHz","rsrp":-115,"sinr":-4,"intervencion":"2026-01-14","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-025","ubicacion":"PISO 1","zona":"REG_07","tecnologia":"5G Sub-6","banda":"700 MHz","rsrp":-82,"sinr":10,"intervencion":"2026-05-19","tipo_trabajo":"Auditoría de Enlace","estado":"Óptimo"},{"antena":"ANT-026","ubicacion":"PISO 1","zona":"REG_08","tecnologia":"4G + 5G","banda":"1900 MHz","rsrp":-97,"sinr":5,"intervencion":"2026-02-03","tipo_trabajo":"Ajuste de Azimuth","estado":"Degradado"},{"antena":"ANT-027","ubicacion":"PISO 1","zona":"REG_09","tecnologia":"4G/LTE","banda":"AWS 1700/2100","rsrp":-107,"sinr":2,"intervencion":"2026-04-15","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-028","ubicacion":"PISO 1","zona":"REG_01","tecnologia":"5G Sub-6","banda":"3.5 GHz","rsrp":-75,"sinr":13,"intervencion":"2026-03-08","tipo_trabajo":"Mantenimiento Preventivo","estado":"Óptimo"},{"antena":"ANT-029","ubicacion":"PISO 1","zona":"REG_02","tecnologia":"4G/LTE","banda":"700 MHz","rsrp":-90,"sinr":7,"intervencion":"2026-05-23","tipo_trabajo":"Upgrade de Software","estado":"Degradado"},{"antena":"ANT-030","ubicacion":"PISO 1","zona":"REG_03","tecnologia":"4G + 5G","banda":"1900 MHz","rsrp":-104,"sinr":1,"intervencion":"2026-01-09","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-031","ubicacion":"PISO 1","zona":"REG_04","tecnologia":"5G Sub-6","banda":"3.5 GHz","rsrp":-70,"sinr":15,"intervencion":"2026-04-30","tipo_trabajo":"Auditoría de Enlace","estado":"Óptimo"},{"antena":"ANT-032","ubicacion":"PISO 1","zona":"REG_05","tecnologia":"4G/LTE","banda":"AWS 1700/2100","rsrp":-95,"sinr":6,"intervencion":"2026-02-18","tipo_trabajo":"Ajuste de Azimuth","estado":"Degradado"},{"antena":"ANT-033","ubicacion":"PISO 1","zona":"REG_06","tecnologia":"4G + 5G","banda":"700 MHz","rsrp":-111,"sinr":-3,"intervencion":"2026-05-06","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-034","ubicacion":"PISO 1","zona":"REG_07","tecnologia":"5G Sub-6","banda":"1900 MHz","rsrp":-77,"sinr":11,"intervencion":"2026-03-13","tipo_trabajo":"Mantenimiento Preventivo","estado":"Óptimo"},{"antena":"ANT-035","ubicacion":"PISO 1","zona":"REG_08","tecnologia":"4G/LTE","banda":"3.5 GHz","rsrp":-100,"sinr":4,"intervencion":"2026-01-21","tipo_trabajo":"Upgrade de Software","estado":"Degradado"},{"antena":"ANT-036","ubicacion":"PISO 1","zona":"REG_09","tecnologia":"4G + 5G","banda":"AWS 1700/2100","rsrp":-106,"sinr":0,"intervencion":"2026-04-25","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-037","ubicacion":"PISO 1","zona":"REG_01","tecnologia":"5G Sub-6","banda":"700 MHz","rsrp":-72,"sinr":14,"intervencion":"2026-05-29","tipo_trabajo":"Auditoría de Enlace","estado":"Óptimo"},{"antena":"ANT-038","ubicacion":"PISO 1","zona":"REG_02","tecnologia":"4G/LTE","banda":"1900 MHz","rsrp":-92,"sinr":7,"intervencion":"2026-02-11","tipo_trabajo":"Ajuste de Azimuth","estado":"Degradado"},{"antena":"ANT-039","ubicacion":"PISO 1","zona":"REG_03","tecnologia":"4G + 5G","banda":"3.5 GHz","rsrp":-109,"sinr":-1,"intervencion":"2026-03-26","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-040","ubicacion":"PISO 1","zona":"REG_04","tecnologia":"5G Sub-6","banda":"AWS 1700/2100","rsrp":-67,"sinr":13,"intervencion":"2026-01-04","tipo_trabajo":"Mantenimiento Preventivo","estado":"Óptimo"},{"antena":"ANT-041","ubicacion":"PISO 1","zona":"REG_05","tecnologia":"4G + 5G","banda":"700 MHz","rsrp":-98,"sinr":5,"intervencion":"2026-04-08","tipo_trabajo":"Upgrade de Software","estado":"Degradado"},{"antena":"ANT-042","ubicacion":"PISO 1","zona":"REG_06","tecnologia":"4G/LTE","banda":"1900 MHz","rsrp":-113,"sinr":-5,"intervencion":"2026-02-25","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-043","ubicacion":"PISO 1","zona":"REG_07","tecnologia":"5G Sub-6","banda":"3.5 GHz","rsrp":-81,"sinr":10,"intervencion":"2026-05-17","tipo_trabajo":"Auditoría de Enlace","estado":"Óptimo"},{"antena":"ANT-044","ubicacion":"PISO 1","zona":"REG_08","tecnologia":"4G + 5G","banda":"700 MHz","rsrp":-94,"sinr":6,"intervencion":"2026-03-02","tipo_trabajo":"Ajuste de Azimuth","estado":"Degradado"},{"antena":"ANT-045","ubicacion":"PISO 1","zona":"REG_09","tecnologia":"4G/LTE","banda":"AWS 1700/2100","rsrp":-102,"sinr":3,"intervencion":"2026-04-19","tipo_trabajo":"Upgrade de Software","estado":"Degradado"},{"antena":"ANT-046","ubicacion":"PISO 1","zona":"REG_01","tecnologia":"5G Sub-6","banda":"1900 MHz","rsrp":-114,"sinr":-2,"intervencion":"2026-01-16","tipo_trabajo":"Cambio de Transceiver","estado":"Crítico"},{"antena":"ANT-047","ubicacion":"PISO 1","zona":"REG_02","tecnologia":"4G + 5G","banda":"3.5 GHz","rsrp":-74,"sinr":12,"intervencion":"2026-05-21","tipo_trabajo":"Mantenimiento Preventivo","estado":"Óptimo"},{"antena":"ANT-048","ubicacion":"PISO 1","zona":"REG_03","tecnologia":"4G/LTE","banda":"700 MHz","rsrp":-89,"sinr":8,"intervencion":"2026-02-06","tipo_trabajo":"Auditoría de Enlace","estado":"Degradado"},{"antena":"ANT-049","ubicacion":"PISO 1","zona":"REG_04","tecnologia":"5G Sub-6","banda":"1900 MHz","rsrp":-85,"sinr":9,"intervencion":"2026-03-31","tipo_trabajo":"Ajuste de Azimuth","estado":"Degradado"},{"antena":"ANT-050","ubicacion":"PISO 1","zona":"REG_05","tecnologia":"4G + 5G","banda":"AWS 1700/2100","rsrp":-65,"sinr":15,"intervencion":"2026-05-25","tipo_trabajo":"Mantenimiento Preventivo","estado":"Óptimo"}];
+
+/* ── Geometría de zonas (extraída del SVG del plano) ── */
+const ZONA_PATHS = {
+  REG_01:"m 32.946636,146.05061 h 50.764721 v 18.15427 H 32.946636 Z",
+  REG_02:"m 83.855438,126.11934 h 31.362002 v 38.99804 H 83.855438 Z",
+  REG_03:"m 55.415028,104.62772 h 35.922374 v 21.52769 H 55.415028 Z",
+  REG_04:"M 54.462803,81.934349 H 111.32697 V 104.50712 H 54.462803 Z",
+  REG_05:"M 91.440342,126.00766 H 144.17641 V 82.406909 h -32.84975 l -0.0679,22.216351 H 91.37249 Z",
+  REG_06:"m 144.55089,87.633367 h 54.5766 v 39.090913 h -54.5766 z",
+  REG_07:"m 199.29923,83.562404 h 44.10845 v 43.429256 h -44.10845 z",
+  REG_08:"M 93.763602,42.854804 H 121.97726 V 81.82372 H 93.763602 Z",
+  REG_09:"m 51.965397,40.727036 h 41.68758 v 18.538486 h -41.68758 z"
+};
+const REGIONS = Object.keys(ZONA_PATHS);
+
+/* ── Estados ── */
+const EST = {
+  critico:{label:"Crítico", color:"#f2585b", rank:3},
+  degradado:{label:"Degradado", color:"#f0b429", rank:2},
+  optimo:{label:"Óptimo", color:"#2ec28a", rank:1},
+  none:{label:"Sin datos", color:"#3a4456", rank:0}
+};
+function estadoKey(s){
+  const t=(s||"").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  if(t.includes("crit")) return "critico";
+  if(t.includes("degrad")) return "degradado";
+  if(t.includes("opt")) return "optimo";
+  return "none";
+}
+
+/* ── Estado global de la app ── */
+let DATA=[], AGG={}, selectedZona=null, currentMetric="estado";
+
+/* ── Parser CSV robusto (maneja comillas y comas internas) ── */
+function parseCSV(text){
+  const rows=[]; let row=[], val="", q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){val+='"';i++;} else q=false; }
+      else val+=c;
+    }else{
+      if(c==='"') q=true;
+      else if(c===','){ row.push(val); val=""; }
+      else if(c==='\n'||c==='\r'){
+        if(c==='\r'&&text[i+1]==='\n') i++;
+        row.push(val); val="";
+        if(row.some(x=>x!=="")) rows.push(row);
+        row=[];
+      } else val+=c;
+    }
+  }
+  if(val!==""||row.length){ row.push(val); if(row.some(x=>x!=="")) rows.push(row); }
+  return rows;
+}
+function csvToRecords(text){
+  const rows=parseCSV(text);
+  if(rows.length<2) return [];
+  const hdr=rows[0].map(h=>h.trim().toUpperCase());
+  const find=(...keys)=>hdr.findIndex(h=>keys.some(k=>h.includes(k)));
+  const ix={
+    antena:find("ANTENA"), zona:find("ZONA"), ubicacion:find("UBICAC"),
+    tecnologia:find("TECNOLOG"), banda:find("BANDA"),
+    rsrp:find("RSRP"), sinr:find("SINR"),
+    intervencion:find("INTERV"), tipo_trabajo:find("TRABAJO","TIPO"), estado:find("ESTADO")
+  };
+  const num=v=>{ const n=parseFloat(String(v).replace(",",".")); return isNaN(n)?null:n; };
+  return rows.slice(1).map(r=>({
+    antena:r[ix.antena]||"", zona:(r[ix.zona]||"").trim(), ubicacion:r[ix.ubicacion]||"",
+    tecnologia:r[ix.tecnologia]||"", banda:r[ix.banda]||"",
+    rsrp:num(r[ix.rsrp]), sinr:num(r[ix.sinr]),
+    intervencion:r[ix.intervencion]||"", tipo_trabajo:r[ix.tipo_trabajo]||"", estado:r[ix.estado]||""
+  }));
+}
+
+/* ── Agregación por zona ── */
+function aggregate(rows){
+  const a={};
+  REGIONS.forEach(z=>a[z]={zona:z,items:[],n:0,critico:0,degradado:0,optimo:0,none:0,rsrp:[],sinr:[]});
+  rows.forEach(r=>{
+    r._e=estadoKey(r.estado);
+    const b=a[r.zona]; if(!b) return;
+    b.items.push(r); b.n++; b[r._e]++;
+    if(typeof r.rsrp==="number") b.rsrp.push(r.rsrp);
+    if(typeof r.sinr==="number") b.sinr.push(r.sinr);
+  });
+  Object.values(a).forEach(b=>{
+    b.avgRsrp=b.rsrp.length? b.rsrp.reduce((x,y)=>x+y,0)/b.rsrp.length : null;
+    b.avgSinr=b.sinr.length? b.sinr.reduce((x,y)=>x+y,0)/b.sinr.length : null;
+    b.worst=b.critico?"critico":b.degradado?"degradado":b.optimo?"optimo":"none";
+  });
+  return a;
+}
+
+/* ── Interpolación de color ── */
+function hex2rgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function lerp(a,b,t){return Math.round(a+(b-a)*t);}
+function scaleColor(t){ // 0=malo(rojo) .. 1=bueno(verde) pasando por ámbar
+  t=Math.max(0,Math.min(1,t));
+  const stops=[hex2rgb("#f2585b"),hex2rgb("#f0b429"),hex2rgb("#2ec28a")];
+  const seg=t<.5?0:1, lt=t<.5?t*2:(t-.5)*2;
+  const c=[0,1,2].map(i=>lerp(stops[seg][i],stops[seg+1][i],lt));
+  return`rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function seqColor(t){ // escala secuencial cian para conteos
+  t=Math.max(0,Math.min(1,t));
+  const a=hex2rgb("#1d3a44"),b=hex2rgb("#10e0c4");
+  return`rgb(${lerp(a[0],b[0],t)},${lerp(a[1],b[1],t)},${lerp(a[2],b[2],t)})`;
+}
+
+/* ── Color de una zona según métrica activa ── */
+function zonaColor(z){
+  const b=AGG[z];
+  if(!b||b.n===0) return EST.none.color;
+  if(currentMetric==="estado") return EST[b.worst].color;
+  if(currentMetric==="conteo"){
+    const counts=REGIONS.map(r=>AGG[r].n), mn=Math.min(...counts), mx=Math.max(...counts);
+    return seqColor(mx===mn?.5:(b.n-mn)/(mx-mn));
+  }
+  const key=currentMetric==="rsrp"?"avgRsrp":"avgSinr";
+  const vals=REGIONS.map(r=>AGG[r][key]).filter(v=>v!=null);
+  if(b[key]==null) return EST.none.color;
+  const mn=Math.min(...vals), mx=Math.max(...vals);
+  return scaleColor(mx===mn?.5:(b[key]-mn)/(mx-mn)); // valor alto = mejor = verde
+}
+
+/* ── Dibujo del plano ── */
+const svg=document.getElementById("plano");
+const gZonas=document.getElementById("zonas");
+const gLabels=document.getElementById("labels");
+function buildPlano(){
+  gZonas.innerHTML=""; gLabels.innerHTML="";
+  REGIONS.forEach(z=>{
+    const p=document.createElementNS("http://www.w3.org/2000/svg","path");
+    p.setAttribute("d",ZONA_PATHS[z]);
+    p.setAttribute("class","zona");
+    p.setAttribute("data-z",z);
+    p.setAttribute("stroke","rgba(255,255,255,.35)");
+    gZonas.appendChild(p);
+  });
+  // ajustar viewBox al contenido real
+  const bb=document.getElementById("contenido").getBBox();
+  const pad=8;
+  svg.setAttribute("viewBox",`${bb.x-pad} ${bb.y-pad} ${bb.width+pad*2} ${bb.height+pad*2}`);
+  // etiquetas centradas
+  REGIONS.forEach(z=>{
+    const node=gZonas.querySelector(`[data-z="${z}"]`);
+    const b=node.getBBox();
+    const t=document.createElementNS("http://www.w3.org/2000/svg","text");
+    t.setAttribute("class","zlabel");
+    t.setAttribute("x",b.x+b.width/2);
+    t.setAttribute("y",b.y+b.height/2);
+    t.innerHTML=`<tspan class="n" x="${b.x+b.width/2}" dy="-0.3em">${z.replace("REG_","")}</tspan>`+
+                `<tspan class="c" x="${b.x+b.width/2}" dy="1.5em" data-c="${z}"></tspan>`;
+    gLabels.appendChild(t);
+  });
+}
+function paintPlano(){
+  REGIONS.forEach(z=>{
+    const node=gZonas.querySelector(`[data-z="${z}"]`);
+    const sel=selectedZona, b=AGG[z];
+    node.setAttribute("fill",zonaColor(z));
+    node.setAttribute("fill-opacity",(sel&&sel!==z)?0.55:0.78);
+    node.classList.toggle("dim",!!sel&&sel!==z);
+    node.classList.toggle("sel",sel===z);
+    const c=gLabels.querySelector(`[data-c="${z}"]`);
+    if(c) c.textContent = b? `${b.n} ant.` : "—";
+  });
+}
+
+/* ── Tooltip ── */
+const tip=document.getElementById("tip");
+function showTip(z,evt){
+  const b=AGG[z];
+  const total=b.n||1;
+  const seg=(k)=>b[k]?`<span style="background:${EST[k].color};width:${b[k]/total*100}%"></span>`:"";
+  tip.innerHTML=
+    `<div class="t-z">${z.replace("REG_","Zona ")}</div>`+
+    `<div class="t-n">${b.n} antena${b.n!==1?"s":""}</div>`+
+    `<div class="t-row"><span>RSRP prom.</span><span class="v">${b.avgRsrp!=null?b.avgRsrp.toFixed(1)+" dBm":"—"}</span></div>`+
+    `<div class="t-row"><span>SINR prom.</span><span class="v">${b.avgSinr!=null?b.avgSinr.toFixed(1)+" dB":"—"}</span></div>`+
+    `<div class="t-bd">${seg("critico")}${seg("degradado")}${seg("optimo")}</div>`;
+  tip.style.opacity=1; moveTip(evt);
+}
+function moveTip(evt){
+  const r=tip.getBoundingClientRect();
+  let x=evt.clientX+16, y=evt.clientY+16;
+  if(x+r.width>innerWidth) x=evt.clientX-r.width-16;
+  if(y+r.height>innerHeight) y=evt.clientY-r.height-16;
+  tip.style.left=x+"px"; tip.style.top=y+"px";
+}
+function hideTip(){tip.style.opacity=0;}
+
+/* ── Selección de zona ── */
+function selectZona(z){
+  selectedZona=(selectedZona===z)?null:z;
+  paintPlano(); renderInfo(); renderTable();
+}
+gZonas.addEventListener("mouseover",e=>{const n=e.target.closest(".zona");if(n)showTip(n.dataset.z,e);});
+gZonas.addEventListener("mousemove",e=>{if(tip.style.opacity==="1")moveTip(e);});
+gZonas.addEventListener("mouseout",e=>{if(e.target.closest(".zona"))hideTip();});
+gZonas.addEventListener("click",e=>{const n=e.target.closest(".zona");if(n)selectZona(n.dataset.z);});
+
+/* ── Panel de resumen / KPIs ── */
+function renderInfo(){
+  const z=selectedZona;
+  const set = z? AGG[z].items : DATA;
+  const n=set.length;
+  const cnt={critico:0,degradado:0,optimo:0};
+  let sr=0,nr=0,ss=0,ns=0;
+  set.forEach(r=>{ cnt[r._e==="none"?"degradado":r._e]++;
+    if(typeof r.rsrp==="number"){sr+=r.rsrp;nr++;}
+    if(typeof r.sinr==="number"){ss+=r.sinr;ns++;} });
+  const avgR=nr?(sr/nr).toFixed(1):"—", avgS=ns?(ss/ns).toFixed(1):"—";
+  const worst=cnt.critico?"critico":cnt.degradado?"degradado":"optimo";
+  const total=n||1;
+  const seg=k=>cnt[k]?`<span style="background:${EST[k].color};width:${cnt[k]/total*100}%"></span>`:"";
+  const row=k=>`<div class="bd-row"><span class="sw" style="background:${EST[k].color}"></span>`+
+    `<span class="nm">${EST[k].label}</span><span class="ct">${cnt[k]}</span></div>`;
+  document.getElementById("infoBody").innerHTML=
+    `<div class="info-title">
+       <span class="z">${z?z.replace("REG_","Zona "):"Piso 1"}</span>
+       <span class="scope">${z?"selección activa":"vista general · 9 zonas"}</span>
+     </div>
+     <span class="badge" style="background:${EST[worst].color}22;color:${EST[worst].color};border:1px solid ${EST[worst].color}55">
+       ${z?"estado: "+EST[worst].label:"prioridad: "+EST[worst].label}</span>
+     <div class="kpi-grid">
+       <div class="kpi"><div class="k-l">Antenas</div><div class="k-v">${n}</div></div>
+       <div class="kpi"><div class="k-l">Críticas</div><div class="k-v" style="color:${EST.critico.color}">${cnt.critico}</div></div>
+       <div class="kpi"><div class="k-l">RSRP prom.</div><div class="k-v">${avgR}<small> dBm</small></div></div>
+       <div class="kpi"><div class="k-l">SINR prom.</div><div class="k-v">${avgS}<small> dB</small></div></div>
+     </div>
+     <div class="bd-title">Distribución por estado</div>
+     <div class="stackbar">${seg("critico")}${seg("degradado")}${seg("optimo")}</div>
+     <div class="bd-rows">${row("critico")}${row("degradado")}${row("optimo")}</div>
+     <div class="hint">${z?"&#8250; Clic en la zona otra vez (o en \u00abVer todo\u00bb) para ver el piso completo.":"&#8250; Pasa el cursor o haz clic en una zona del plano para enfocarla."}</div>`;
+}
+
+/* ── Tabla de detalle ── */
+function renderTable(){
+  const q=document.getElementById("search").value.toLowerCase().trim();
+  let rows=selectedZona? AGG[selectedZona].items : DATA;
+  if(q) rows=rows.filter(r=>
+    [r.antena,r.banda,r.tecnologia,r.tipo_trabajo,r.estado,r.zona]
+    .join(" ").toLowerCase().includes(q));
+  const tb=document.getElementById("tbody"); tb.innerHTML="";
+  rows.forEach(r=>{
+    const e=EST[r._e];
+    const tr=document.createElement("tr");
+    tr.innerHTML=
+      `<td class="mono" style="border-left-color:${e.color}">${r.antena}</td>`+
+      `<td class="mono">${r.zona.replace("REG_","Z")}</td>`+
+      `<td><span class="pill" style="background:${e.color}22;color:${e.color}">${e.label}</span></td>`+
+      `<td>${r.tecnologia}</td>`+
+      `<td>${r.banda}</td>`+
+      `<td class="num" style="color:${r.rsrp<=-100?EST.critico.color:r.rsrp<=-90?EST.degradado.color:'inherit'}">${r.rsrp??"—"}</td>`+
+      `<td class="num" style="color:${r.sinr<=0?EST.critico.color:r.sinr<7?EST.degradado.color:'inherit'}">${r.sinr??"—"}</td>`+
+      `<td>${r.tipo_trabajo}</td>`+
+      `<td class="mono" style="color:var(--text-dim)">${r.intervencion}</td>`;
+    tr.addEventListener("click",()=>selectZona(r.zona));
+    tb.appendChild(tr);
+  });
+  document.getElementById("emptyMsg").style.display=rows.length?"none":"block";
+  document.getElementById("rowCount").textContent=
+    `${rows.length} de ${DATA.length} registros`;
+}
+
+/* ── Leyenda dinámica ── */
+function renderLegend(){
+  const L=document.getElementById("legend");
+  if(currentMetric==="estado"){
+    L.innerHTML=["critico","degradado","optimo"].map(k=>
+      `<div class="item"><span class="sw" style="background:${EST[k].color}"></span>${EST[k].label}</div>`).join("");
+  }else{
+    const meta={rsrp:["RSRP bajo","RSRP alto"],sinr:["SINR bajo","SINR alto"],conteo:["menos","más"]}[currentMetric];
+    const grad=currentMetric==="conteo"
+      ?`linear-gradient(90deg,${seqColor(0)},${seqColor(1)})`
+      :`linear-gradient(90deg,${scaleColor(0)},${scaleColor(.5)},${scaleColor(1)})`;
+    L.innerHTML=`<div class="item">${meta[0]}</div>`+
+      `<div class="bar" style="background:${grad}"></div>`+
+      `<div class="item">${meta[1]}</div>`;
+  }
+}
+
+/* ── Carga de datos (vivo o embebido) ── */
+async function loadData(){
+  const pill=document.getElementById("statusPill"), txt=document.getElementById("statusTxt");
+  if(CONFIG.SHEET_CSV_URL){
+    try{
+      const res=await fetch(CONFIG.SHEET_CSV_URL+(CONFIG.SHEET_CSV_URL.includes("?")?"&":"?")+"_t="+Date.now());
+      if(!res.ok) throw new Error(res.status);
+      const recs=csvToRecords(await res.text());
+      if(!recs.length) throw new Error("CSV vacío");
+      DATA=recs;
+      pill.className="status live"; txt.textContent="En vivo";
+    }catch(err){
+      DATA=EMBEDDED_DATA.slice();
+      pill.className="status local"; txt.textContent="Sin conexión · datos locales";
+      console.warn("Fallo al cargar CSV:",err);
+    }
+  }else{
+    DATA=EMBEDDED_DATA.slice();
+    pill.className="status local"; txt.textContent="Datos locales";
+  }
+  DATA.forEach(r=>r._e=estadoKey(r.estado));
+  AGG=aggregate(DATA);
+  document.getElementById("updTxt").textContent=
+    "Actualizado "+new Date().toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"});
+}
+
+/* ── Render completo ── */
+function renderAll(){ paintPlano(); renderInfo(); renderTable(); renderLegend(); }
+
+/* ── Eventos ── */
+document.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
+  c.classList.add("on"); currentMetric=c.dataset.metric;
+  paintPlano(); renderLegend();
+}));
+document.getElementById("search").addEventListener("input",renderTable);
+document.getElementById("resetSel").addEventListener("click",()=>{selectedZona=null;renderAll();});
+document.getElementById("refreshBtn").addEventListener("click",async e=>{
+  const b=e.currentTarget; b.classList.add("spin");
+  await loadData(); renderAll();
+  setTimeout(()=>b.classList.remove("spin"),600);
+});
+
+/* ── Inicio ── */
+(async function init(){
+  buildPlano();
+  await loadData();
+  renderAll();
+  if(CONFIG.AUTO_REFRESH_SECONDS>0){
+    setInterval(async()=>{await loadData();renderAll();},CONFIG.AUTO_REFRESH_SECONDS*1000);
+  }
+})();
+</script>
+</body>
+</html>
