@@ -22,25 +22,16 @@ de eventos, mapas geográficos personalizados, etc.
 - **Tabla de detalle** con búsqueda en vivo y enlace bidireccional con el plano.
 - **Modo offline** con datos embebidos + **modo en vivo** desde Google Sheets.
 - **Un solo archivo HTML** — sin build, sin `npm`, sin servidor. Lo abres y funciona.
-- **Compartible** — se publica gratis en GitHub Pages, Netlify Drop, Cloudflare Pages, etc.
 
 ---
 
 ## 🚀 Inicio rápido
 
-### Opción A — Solo verlo localmente
-Doble clic en `index.html`. Listo.
+Descarga `index.html` y ábrelo en tu navegador. Listo.
 
-### Opción B — Publicarlo en GitHub Pages (gratis)
-1. Sube este repo a GitHub.
-2. Ve a **Settings ▸ Pages**.
-3. En *Source* elige la rama `main` y la carpeta `/ (root)`.
-4. En unos segundos tu dashboard estará en
-   `https://<tu-usuario>.github.io/interactive-map-dashboard/`.
-
-### Opción C — Arrastrar y soltar
-Ve a [netlify.com/drop](https://app.netlify.com/drop), arrastra `index.html` y
-te devuelve un link público al instante. Útil para previews.
+No necesitas instalar nada, no necesitas servidor, no necesitas conexión a
+internet (excepto para cargar las tipografías de Google Fonts, que tienen
+respaldo del sistema si no hay red).
 
 ---
 
@@ -160,35 +151,10 @@ Migrar de Google Sheets a un backend que escale.
 | Tipografía       | Chakra Petch, Archivo, JetBrains Mono (Google Fonts) |
 | Datos (Fase 1)   | JSON embebido + CSV de Google Sheets |
 | Datos (Fase 3)   | _por definir_ — Supabase / Firebase  |
-| Hosting          | GitHub Pages / Netlify / Cloudflare Pages |
 | Build            | _ninguno_                            |
 
 Sin frameworks, sin bundler, sin pasos de compilación. Si funciona en el
 navegador, funciona en producción.
-
----
-
-## 🤝 Cómo subirlo a GitHub (desde WSL)
-
-```bash
-# 1. Descomprime el zip y entra a la carpeta
-cd ~/proyectos
-unzip ~/Downloads/interactive-map-dashboard.zip
-cd interactive-map-dashboard
-
-# 2. Inicializa git
-git init
-git add .
-git commit -m "feat: MVP del dashboard interactivo con plano SVG"
-
-# 3. Crea el repo vacío en github.com (sin README ni .gitignore — ya los tienes)
-#    Luego conéctalo:
-git branch -M main
-git remote add origin https://github.com/<tu-usuario>/interactive-map-dashboard.git
-git push -u origin main
-```
-
-> Si prefieres usar la CLI de GitHub: `gh repo create interactive-map-dashboard --public --source=. --push`
 
 ---
 
